@@ -5,6 +5,7 @@ import 'package:counter_app/counter_observer.dart';
 import 'package:counter_app/utils/logger.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   Bloc.observer = const CounterObserver();
   await initializeLogger();
   runApp(const CounterApp());

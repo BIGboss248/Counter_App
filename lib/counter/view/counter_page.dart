@@ -1,4 +1,3 @@
-
 import 'package:counter_app/counter/cubit/counter_cubit.dart';
 import 'package:counter_app/counter/view/counter_view.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,9 @@ class CounterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (context) => CounterCubit(), child: const CounterView());
+    return BlocProvider<CounterCubit>(
+      create: (_) => CounterCubit(),
+      child: const CounterView(),
+    );
   }
 }

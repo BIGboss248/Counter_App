@@ -1,58 +1,61 @@
-/*
+// ignore_for_file: avoid_print
 
-  # Setup logging function
-
-  This file setups console logging for flutter app
-
-  Store this code in:
-  lib\utils\app_logger.dart
-
-  You can use this by intializing it in main()
-
-  void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  AppLogger.initialize(); // Initialize logging before running the app
-  runApp(MyApp());
-  }
-
-  and using it like AppLogger.info("message")
-
-*/
+import 'dart:io';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 
-class AppLogger {
-  static final Logger _logger = Logger(
-    printer: PrettyPrinter(
-      methodCount: 0,
-      errorMethodCount: 3,
-      lineLength: 80,
-      colors: true,
-      printEmojis: true,
-    ),
-    level: Level.debug,
-  );
+late Logger logger;
 
-  static bool _isInitialized = false;
+/// Initialize the logger with file and console output.
+///! Call this in main() before using the logger.
+/// Example: await initializeLogger();
+Future<void> initializeLogger() async {
+  try {
+    // Get platform-specific documents directory
+    final documentsDir = await getApplicationDocumentsDirectory();
+    final logsDir = Directory('${documentsDir.path}/logs');
 
-  static void initialize() {
-    _isInitialized = true;
-  }
-
-  static void debug(String message) {
-    if (_isInitialized) _logger.d(message);
-  }
-
-  static void info(String message) {
-    if (_isInitialized) _logger.i(message);
-  }
-
-  static void warning(String message) {
-    if (_isInitialized) _logger.w(message);
-  }
-
-  static void error(String message, [dynamic error]) {
-    if (_isInitialized) {
-      _logger.e(message, error: error, stackTrace: StackTrace.current);
+    // Create logs directory if it doesn't exist
+    if (!await logsDir.exists()) {
+      await logsDir.create(recursive: true);
     }
+
+    final logFile = File('${logsDir.path}/app_logger.txt');
+
+    // Create logger with both console and file output
+    logger = Logger(
+      printer: PrettyPrinter(
+        colors: true,
+        noBoxingByDefault: true,
+        printEmojis: true,
+        levelColors: {
+          Level.debug: AnsiColor.fg(33),
+          Level.info: AnsiColor.fg(32),
+          Level.warning: AnsiColor.fg(93),
+          Level.fatal: AnsiColor.fg(31),
+        },
+      ),
+      output: MultiOutput([ConsoleOutput(), FileOutput(file: logFile)]),
+    );
+
+    logger.i('Logger initialized. Logs path: ${logFile.path}');
+  } catch (e, st) {
+    print('Failed to initialize logger: $e');
+    print(st);
+    // Fallback to console-only logger
+    logger = Logger(
+      printer: PrettyPrinter(
+        colors: true,
+        noBoxingByDefault: true,
+        printEmojis: true,
+        levelColors: {
+          Level.debug: AnsiColor.fg(33),
+          Level.info: AnsiColor.fg(32),
+          Level.warning: AnsiColor.fg(93),
+          Level.fatal: AnsiColor.fg(31),
+        },
+      ),
+      output: MultiOutput([ConsoleOutput()]),
+    );
   }
 }

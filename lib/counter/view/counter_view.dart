@@ -10,7 +10,7 @@ class CounterView extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: Center(
-        child: BlocBuilder(
+        child: BlocBuilder<CounterCubit, int>(
           builder: (context, state) {
             return Text("$state", style: textTheme.displayMedium);
           },
